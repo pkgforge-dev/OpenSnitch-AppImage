@@ -84,6 +84,10 @@ git clone https://github.com/evilsocket/opensnitch.git ./opensnitch && (
 # build and install the gui
 (
 	cd ./opensnitch/ui
+	# absolute data_files paths end up installed under
+	# ${prefix}/lib/python3.*/site-packages/usr/share/... by python -m installer,
+	# so make them relative to land in /usr/share (archlinux ran into this as well)
+	sed -i -e "s|'/usr/share/|'share/|g" ./setup.py
 	python -m build --wheel --no-isolation
 	python -m installer --prefix=/usr ./dist/*.whl
 )

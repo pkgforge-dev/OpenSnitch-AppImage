@@ -1,0 +1,88 @@
+#!/bin/sh
+
+# opensnitchd needs elevated privileges to manage the netfilter queue and
+# nftables rules. We cannot use suid since the AppImage is mounted with
+# nosuid and other users cannot even access the FUSE mountpoint, so we
+# have to set capabilities on a copy of the daemon placed in a writable
+# directory that is not mounted with nosuid.
+
+_workaround_path=
+_opensnitch_configdir=$CONFIGDIR/OpenSnitch-AppImage
+
+_check_daemon_caps() {
+	if [ -n "$(getcap "$_workaround_path"/bin/opensnitchd 2>/dev/null)" ]; then
+		return 0
+	fi
+	if ! run_gui_sudo --check; then
+		err_msg "No 'pkexec' or 'lxqt-sudo' or 'run0' found!"
+		err_msg "The daemon will not be able to intercept connections"
+		return 0
+	fi
+	run_gui_sudo sh -c "
+		setcap cap_net_admin,cap_net_raw,cap_sys_admin,cap_sys_ptrace+ep '$_workaround_path'/bin/opensnitchd
+	" || :
+}
+
+_is_daemon_running() {
+	[ -f "$_workaround_path"/opensnitchd.pid ] || return 1
+	read -r pid < "$_workaround_path"/opensnitchd.pid 2>/dev/null
+	[ -n "$pid" ] || return 1
+	kill -0 "$pid" 2>/dev/null || return 1
+	grep -qa 'opensnitchd' /proc/"$pid"/cmdline 2>/dev/null
+}
+
+# find a nosuid-free writable location for the daemon
+if ! grep -q '/tmp .*nosuid' /proc/mounts; then
+	_workaround_path=/tmp/.opensnitch-appimage-hack
+elif [ -w /var/tmp ] && ! grep -qE '/var/tmp .*nosuid|/var .*nosuid' /proc/mounts; then
+	_workaround_path=/var/tmp/.opensnitch-appimage-hack
+else
+	_workaround_path=$CACHEDIR/opensnitch-appimage-hack
+fi
+
+# some distros don't include sbin in PATH
+export PATH="$_workaround_path/bin:$PATH:/usr/local/sbin:/usr/sbin:/sbin"
+
+mkdir -p "$_workaround_path"/bin \
+	"$_opensnitch_configdir"/rules \
+	"$_opensnitch_configdir"/tasks
+
+# hack to get capabilities working
+if [ ! -f "$_workaround_path"/.done ]; then
+	cp -f "$APPDIR"/sharun    "$_workaround_path"
+	cp -f "$APPDIR"/.env      "$_workaround_path" 2>/dev/null || :
+	cp -f "$APPDIR"/.preload  "$_workaround_path" 2>/dev/null || :
+
+	# make a separate copy so setcap does not affect the other hardlinks
+	rm -f "$_workaround_path"/bin/opensnitchd
+	cp "$_workaround_path"/sharun "$_workaround_path"/bin/opensnitchd
+
+	:> "$_workaround_path"/.done
+fi
+
+# symlink the AppDir dirs so the wrapped daemon finds the bundled libs
+for d in "$APPDIR"/*; do
+	if [ -d "$d" ]; then
+		ln -sfn "$d" "$_workaround_path"/"${d##*/}"
+	fi
+done
+
+# copy the config templates, the daemon needs write access to these
+cp -rn "$APPDIR"/share/opensnitchd/. "$_opensnitch_configdir"/ 2>/dev/null || :
+chmod -R go-rwx "$_opensnitch_configdir"/ 2>/dev/null || :
+
+# point the bundled config at the writable location
+if [ -f "$_opensnitch_configdir"/default-config.json ]; then
+	sed -i \
+		"s|@CONFIGDIR@|$_opensnitch_configdir|g" \
+		"$_opensnitch_configdir"/default-config.json
+fi
+
+_check_daemon_caps
+
+if ! _is_daemon_running; then
+	nohup "$_workaround_path"/bin/opensnitchd \
+		--config-file "$_opensnitch_configdir"/default-config.json \
+		>"$_opensnitch_configdir"/opensnitchd.log 2>&1 &
+	echo $! > "$_workaround_path"/opensnitchd.pid
+fi

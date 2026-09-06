@@ -23,6 +23,7 @@ pacman -Syu --noconfirm \
 	python-pyinotify    \
 	python-pyqt6        \
 	python-protobuf     \
+	python-pyasn        \
 	python-qt-material  \
 	python-setuptools   \
 	python-slugify      \

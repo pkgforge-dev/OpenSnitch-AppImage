@@ -1,0 +1,35 @@
+diff --git a/ui/opensnitch/service.py b/ui/opensnitch/service.py
+index eb3b53a..91e395a 100644
+--- a/ui/opensnitch/service.py
++++ b/ui/opensnitch/service.py
+@@ -135,7 +135,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
+         self._sched_tasks = {}
+ 
+         if not start_in_bg:
+-            self._show_gui_if_tray_not_available()
++            self._show_gui()
+ 
+         self._cleaner = None
+         if self._cfg.getBool(Config.DEFAULT_DB_PURGE_OLDEST):
+@@ -259,18 +259,9 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
+     def _on_show_menu(self):
+         self._menu_autostart.setChecked(self._autostart.isEnabled())
+ 
+-    def _show_gui_if_tray_not_available(self):
+-        """If the system tray is not available or ready, show the GUI after
+-        10s. This delay helps to skip showing up the GUI when DEs' autologin is on.
+-        """
+-        tray = self._tray
+-        gui = self._stats_dialog
+-        def __show_gui():
+-            if not tray.isSystemTrayAvailable():
+-                self._show_systray_msg_error()
+-                gui.show()
+-
+-        QtCore.QTimer.singleShot(10000, __show_gui)
++    def _show_gui(self):
++        """Always show the main window on startup."""
++        self._stats_dialog.show()
+ 
+     def show_systray_msg(self, title, body, icon=None, callback=None, user_args=None, mtype=Config.NOTIFICATION_TYPE_QT, timeout=10):
+         try:

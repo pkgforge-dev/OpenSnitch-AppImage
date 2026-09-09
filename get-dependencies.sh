@@ -53,6 +53,8 @@ git clone https://github.com/evilsocket/opensnitch.git ./opensnitch && (
 	git checkout "$TAG"
 	VERSION="${TAG#v}"
 	echo "$VERSION" > ~/version
+
+	git apply ../patches/*.patch
 )
 
 # generate the Go protobuf files, the python ones are already committed

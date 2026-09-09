@@ -61,11 +61,9 @@ if [ ! -f "$_workaround_path"/.done ]; then
 fi
 
 # symlink the AppDir dirs so the wrapped daemon finds the bundled libs
-for d in "$APPDIR"/*; do
-	if [ -d "$d" ]; then
-		ln -sfn "$d" "$_workaround_path"/"${d##*/}"
-	fi
-done
+ln -sfn "$APPDIR"/lib     "$_workaround_path"/lib
+ln -sfn "$APPDIR"/share   "$_workaround_path"/share
+ln -sfn "$APPDIR"/shared  "$_workaround_path"/shared
 
 # copy the config templates, the daemon needs write access to these
 cp -rn "$APPDIR"/share/opensnitchd/. "$_opensnitch_configdir"/ 2>/dev/null || :

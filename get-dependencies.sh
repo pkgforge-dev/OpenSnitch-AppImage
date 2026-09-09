@@ -28,6 +28,7 @@ pacman -Syu --noconfirm \
 	python-setuptools   \
 	python-slugify      \
 	python-wheel        \
+	qt6-svg             \
 	qt6-tools
 
 echo "Installing debloated packages..."

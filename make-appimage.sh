@@ -16,10 +16,12 @@ export STRACE_BINARY=opensnitch-ui
 
 # Deploy dependencies
 quick-sharun \
-	/usr/bin/opensnitch* \
-	/usr/bin/setcap      \
-	/usr/bin/getcap      \
-	/usr/share/opensnitchd
+	/usr/bin/opensnitch*   \
+	/usr/bin/setcap        \
+	/usr/bin/getcap        \
+	/usr/share/opensnitchd \
+	/usr/lib/libcares.so*  \
+	/usr/lib/libabsl_cord_internal.so*
 
 # add markers in the config file that get replaced at runtime
 # ebpf is kernel specific and not portable, use proc instead

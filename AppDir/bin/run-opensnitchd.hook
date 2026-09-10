@@ -19,7 +19,7 @@ _check_daemon_caps() {
 		return 0
 	fi
 	run_gui_sudo sh -c "
-		setcap cap_net_admin,cap_net_raw,cap_sys_admin,cap_sys_ptrace+ep '$_workaround_path'/bin/opensnitchd
+		setcap cap_net_admin,cap_net_raw,cap_sys_admin,cap_sys_ptrace,cap_dac_read_search+ep '$_workaround_path'/bin/opensnitchd
 	" || :
 }
 

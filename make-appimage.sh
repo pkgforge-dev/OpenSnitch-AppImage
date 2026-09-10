@@ -16,11 +16,12 @@ export STRACE_BINARY=opensnitch-ui
 
 # Deploy dependencies
 quick-sharun \
-	/usr/bin/opensnitch*   \
-	/usr/bin/setcap        \
-	/usr/bin/getcap        \
-	/usr/share/opensnitchd \
-	/usr/lib/libcares.so*  \
+	/usr/bin/opensnitch*    \
+	/usr/bin/setcap         \
+	/usr/bin/getcap         \
+	/usr/share/opensnitchd  \
+	/usr/lib/libQt6Core.so* \
+	/usr/lib/libcares.so*   \
 	/usr/lib/libabsl_*.so*
 
 # add markers in the config file that get replaced at runtime

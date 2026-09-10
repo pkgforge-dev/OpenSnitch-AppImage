@@ -10,10 +10,12 @@ pacman -Syu --noconfirm \
 	abseil-cpp          \
 	c-ares              \
 	go                  \
+	kvantum             \
 	libcap              \
 	libmnl              \
 	libnetfilter_queue  \
 	libnfnetlink        \
+	lxqt-qtplugin       \
 	protobuf            \
 	python              \
 	python-build        \
@@ -30,6 +32,7 @@ pacman -Syu --noconfirm \
 	python-setuptools   \
 	python-slugify      \
 	python-wheel        \
+	qt6ct               \
 	qt6-svg             \
 	qt6-tools
 

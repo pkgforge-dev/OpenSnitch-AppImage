@@ -21,6 +21,8 @@ quick-sharun \
 	/usr/bin/getcap         \
 	/usr/share/opensnitchd  \
 	/usr/lib/libQt6Core.so* \
+	/usr/lib/libQt6Gui.so*  \
+	/usr/lib/libQt6Svg.so*  \
 	/usr/lib/libcares.so*   \
 	/usr/lib/libabsl_*.so*
 
